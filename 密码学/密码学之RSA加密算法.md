@@ -224,6 +224,7 @@ openssl rsautl -decrypt -in enc.txt -inkey private.pem -out dec.txt
 ````
 结果如下：
 ![](https://user-gold-cdn.xitu.io/2019/10/21/16decb4548c47e55?w=1594&h=198&f=png&s=74067)
+
 ![](https://user-gold-cdn.xitu.io/2019/10/21/16decb3cc5853493?w=1280&h=722&f=png&s=92076)
 解密后的文件dec.txt内容正好是【密码：helloRSA123456】，与明文内容一致。至此，RSA算法流程结束。
 
