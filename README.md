@@ -4,7 +4,7 @@
 
 1. 仅以此文记录所学    
 2. 所有笔记可以通过[Wiki](https://github.com/ConstantCody/blogs/wiki)查看    
-3. 提供相关笔记在**掘金网**的访问链接，具体如下
+3. 提供相关笔记在[掘金网](https://juejin.im/user/5bab3a6a6fb9a05cfe487448/posts)的访问链接，具体如下
 
 ## 密码学
 
