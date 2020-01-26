@@ -4,7 +4,9 @@
 
 1. 所有文章都可以通过[Wiki](https://github.com/ConstantCody/blogs/wiki)在github查看    
 2. 下面提供文章在 [掘金网](https://juejin.im/user/5bab3a6a6fb9a05cfe487448/posts) 的访问链接
-> 以下的所有链接均指向笔者在 [掘金网](https://juejin.im/user/5bab3a6a6fb9a05cfe487448/posts) 上的博客地址。
+```!
+以下的所有链接均指向笔者在 [掘金网](https://juejin.im/user/5bab3a6a6fb9a05cfe487448/posts) 上的博客地址。
+```
 
 ## 2. 源码分析
 
