@@ -201,7 +201,7 @@ private:
 
 ### 1.4 `isa`的作用
 
-通过对`isa`的位域说明，我们知道`shiftcls`存储的是类指针的值。在`x86_64`架构下，`shiftcls`占用44位，也就是从第3~46位，将 [3, 46]位 全部填充1，[0, 2]位 和 [47~63]位 都补0，得到0x7ffffffffff8，也就是`ISA_MASK`的值。故，`isa & ISA_MASK`会得到`shiftcls`存储的类指针的值。这也就是所谓`MASK`的作用。
+通过对`isa`的位域说明，我们知道`shiftcls`存储的是类指针的值。在`x86_64`架构下，`shiftcls`占用44位，也就是第[3, 46]位。将 [3, 46]位 全部填充1，[0, 2]位 和 [47~63]位 都补0，得到0x7ffffffffff8，也就是`ISA_MASK`的值。故，`isa & ISA_MASK`会得到`shiftcls`存储的类指针的值。这也就是所谓`MASK`的作用。
 
 如下图所示
 ![](https://user-gold-cdn.xitu.io/2020/1/26/16fe04a1ad504624?w=796&h=950&f=png&s=733485)
