@@ -2,7 +2,13 @@
 
 ## 前言
 
-### 抛出问题
+> 想要成为一名`iOS开发高手`，免不了阅读源码。以下是笔者在`OC源码探索`中梳理的一个小系列——**类与对象篇**，欢迎大家阅读指正，同时也希望对大家有所帮助。
+>
+> 1. [OC源码分析之对象的创建](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之对象的创建.md)
+> 2. [OC源码分析之isa](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之isa.md)
+> 3. 未完待续...
+
+## 再前言：一个问题
 
 进入主题之前，先请大家思考一下下面代码的输出
 
@@ -35,7 +41,9 @@ int main(int argc, const char * argv[]) {
 
 显而易见，对象p、p1、p2的内存地址一致，即这三者是同一个对象。那么问题来了，为什么这三个对象地址是一样的？`alloc`和`init`底层到底做了什么？带着这些问题，我们从源码的角度探索一下吧。
 
-### 准备工作
+## 1. alloc源码分析
+
+### 1.0 准备工作
 
 1. 从 [苹果官方开源代码列表](https://opensource.apple.com/tarballs) 找到 `objc4`源码。
 
@@ -50,8 +58,6 @@ int main(int argc, const char * argv[]) {
 ![](https://user-gold-cdn.xitu.io/2020/1/4/16f6e7a7aa7829cc?w=2248&h=960&f=png&s=801017)
 
 > 博主已经把编译好的`objc4-756.2`项目传到 [github](https://github.com/ConstantCody/objc4-756.2Demo) 了，感兴趣的同学可以下载哈~
-
-## 1. alloc源码分析
 
 因为`oc`语言的`runtime`特性，我们并不能肯定入口一定是`+alloc`方法，也就是说首先需要找到真正的入口。
 
@@ -278,9 +284,10 @@ _class_createInstanceFromZone(Class cls, size_t extraBytes, void *zone,
 
 **对`_class_createInstanceFromZone()`的分析如下：**
 
-1. `instanceSize(extraBytes)`计算内存，此时的`extraBytes`是`0`，其源码是
+1. `cls->instanceSize(extraBytes)`计算内存，此时的`extraBytes`是`0`，其源码是
 
 ````c
+// 1.
 size_t instanceSize(size_t extraBytes) {
     size_t size = alignedInstanceSize() + extraBytes;
     // CF requires all objects be at least 16 bytes.
@@ -288,28 +295,42 @@ size_t instanceSize(size_t extraBytes) {
     return size;
 }
 
+// 2.
 uint32_t alignedInstanceSize() {
     return word_align(unalignedInstanceSize());
 }
 
+// 3. 字节对齐
 static inline uint32_t word_align(uint32_t x) {
     return (x + WORD_MASK) & ~WORD_MASK;
 }
 static inline size_t word_align(size_t x) {
     return (x + WORD_MASK) & ~WORD_MASK;
 }
+
+// 4.
+#ifdef __LP64__
+#   define WORD_SHIFT 3UL
+#   define WORD_MASK 7UL
+#   define WORD_BITS 64
+#else
+#   define WORD_SHIFT 2UL
+#   define WORD_MASK 3UL
+#   define WORD_BITS 32
+#endif
+
 ````
 
-`WORD_MASK`在`64`位操作系统下是`7`，否则是`3`，因此，`word_align()`在`64`位系统下是`8字节对齐`，其他位系统下是`4字节对齐`。
+可见，`WORD_MASK`在`64`位系统下是`7`，否则是`3`，因此，`word_align()`在`64`位系统下是`8字节对齐`，否则是`4字节对齐`。
 
-`instanceSize()`函数同时对内存大小又进行了最小`16字节`的限制。
+同时，`instanceSize()`函数又对内存大小又进行了最小`16字节`的限制。
 
 2. `canAllocNonpointer()`是对isa的类型的区分，在 `__OBJC2__` 中，如果一个类使用`isa_t`类型的`isa`的话，`fast`就是`true`；而在`__OBJC2__`中，`zone`会被忽略，所以`!zone`也是`true`；
 
 综上，接着就是`calloc()`和`initInstanceIsa()`。
 
 3. `calloc()`的底层源码是在 [苹果开源的**libmalloc**](https://opensource.apple.com/tarballs/libmalloc/)
-中，经过调试，`calloc`分配的内存大小受`segregated_size_to_fit()`影响，看下面源码：
+中，经过断点跟踪，发现`calloc`分配的内存大小受`segregated_size_to_fit()`影响，看下面源码：
 
 ````c
 static MALLOC_INLINE size_t
@@ -335,7 +356,7 @@ segregated_size_to_fit(nanozone_t *nanozone, size_t size, size_t *pKey)
 #define NANO_REGIME_QUANTA_SIZE	    (1 << SHIFT_NANO_QUANTUM)	// 16
 ````
 
-其中，`slot_bytes`相当于`(size + 16-1) >> 4 << 4`，也就是`16字节对齐`。
+从代码可以看出，`slot_bytes`相当于`(size + 16-1) >> 4 << 4`，也就是`16字节对齐`，因此`calloc()`分配的内存大小必然是`16字节`的整数倍。
 
 4. `initInstanceIsa()`就是初始化`isa`，并且关联`cls`。
 
@@ -385,7 +406,6 @@ _objc_rootInit(id obj)
 下面用流程图总结一下`alloc`创建对象的过程
 
 ![](https://user-gold-cdn.xitu.io/2020/1/5/16f761c270c257de?w=1744&h=1490&f=png&s=165001)
-
 
 ## 4. 结束语
 
@@ -461,4 +481,5 @@ Person *p2 = [Person alloc];
 ````
 
 > 大家可以自己试试，通过比较会帮助大家理解记忆`alloc`的流程。
+
 
