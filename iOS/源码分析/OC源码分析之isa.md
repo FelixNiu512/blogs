@@ -4,8 +4,8 @@
 
 > 想要成为一名`iOS开发高手`，免不了阅读源码。以下是笔者在`OC源码探索`中梳理的一个小系列——**类与对象篇**，欢迎大家阅读指正，同时也希望对大家有所帮助。
 >
-> 1. [OC源码分析之对象的创建](https://juejin.im/post/5de08bf85188254fc26bc242)
-> 2. [OC源码分析之isa](https://juejin.im/post/5e0d4c686fb9a048401cff26)
+> 1. [OC源码分析之对象的创建](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之isa.md)
+> 2. [OC源码分析之isa](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之isa.md)
 > 3. 未完待续...
 
 ## 1. `isa`介绍
@@ -160,7 +160,7 @@ typedef unsigned long           uintptr_t;
 * `has_cxx_dtor`：该对象是否有C++或Objc的析构器。
     * 如果有析构函数，则需要做一些析构的逻辑处理；
     * 如果没有，则可以更快的释放对象。
-* `shiftcls`：存储类指针的值。开启指针优化的情况下，在 `x86_64` 架构有 **44位** 用来存储类指针，`arm64` 架构中有 **33位** 。
+* `shiftcls`：存储类地址。开启指针优化的情况下，在 `x86_64` 架构有 **44位** 用来存储类地址，`arm64` 架构中有 **33位** 。
 * `magic`：用于调试器判断当前对象是真的对象，还是一段没有初始化的空间。
 * `weakly_referenced`：用于标识对象是否被指向或者曾经被指向一个`ARC`的弱变量，没有弱引用的对象释放的更快。
 * `deallocating`：标识对象是否正在释放内存。
@@ -201,7 +201,7 @@ private:
 
 ### 1.4 `isa`的作用
 
-通过对`isa`的位域说明，我们知道`shiftcls`存储的是类指针的值。在`x86_64`架构下，`shiftcls`占用44位，也就是第[3, 46]位。将 [3, 46]位 全部填充1，[0, 2]位 和 [47~63]位 都补0，得到0x7ffffffffff8，也就是`ISA_MASK`的值。故，`isa & ISA_MASK`会得到`shiftcls`存储的类指针的值。这也就是所谓`MASK`的作用。
+通过对`isa`的位域说明，我们知道`shiftcls`存储的是类地址。在`x86_64`架构下，`shiftcls`占用44位，也就是第[3, 46]位。将 [3, 46]位 全部填充1，[0, 2]位 和 [47, 63]位 都补0，得到0x7ffffffffff8，也就是`ISA_MASK`的值。故，`isa & ISA_MASK`会得到`shiftcls`存储的类地址。这也就是所谓`MASK`的作用。
 
 如下图所示
 ![](https://user-gold-cdn.xitu.io/2020/1/26/16fe04a1ad504624?w=796&h=950&f=png&s=733485)
