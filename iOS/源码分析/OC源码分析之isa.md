@@ -6,7 +6,8 @@
 >
 > 1. [OC源码分析之对象的创建](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之对象的创建.md)
 > 2. [OC源码分析之isa](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之isa.md)
-> 3. 未完待续...
+> 3. [OC源码分析之类的结构解读](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之类的结构解读.md)
+> 4. 未完待续...
 
 ## 1. `isa`介绍
 
@@ -79,7 +80,7 @@ struct objc_object {
 private:
     isa_t isa;
     
-    ... // 一些isa的公有、私有方法
+    ... // 一些公有、私有方法
 };
 ````
 
@@ -118,7 +119,7 @@ union isa_t {
 >   * 节省储存空间；
 >   * 可以很方便的访问一个整数值的部分内容从而可以简化程序源代码。
 > * 缺点：
->   * 其内存分配与内存对齐的实现方式依赖于具体的机器和系统，在不同的平台可能有不同的结果，这导致了位段在本质上是不可移植的。
+>   * 其内存分配与内存对齐的实现方式依赖于具体的机器和系统，在不同的平台可能有不同的结果，这导致了位域在本质上是不可移植的。
 
 `isa`的`bits`成员变量类型是`uintptr_t`，它实质上是个`unsigned long`
 ````c
@@ -193,15 +194,17 @@ struct objc_object {
 private:
     isa_t isa;
     
-    ... // 一些isa的公有、私有方法
+    ... // 一些公有、私有方法
 };
 
 ````
-从源码得知，`Class`实际上是`objc_class`结构体的指针变量，而`objc_class`又继承自`objc_object`，因此`Class`这个结构体指针变量的值内部有一个`isa`成员变量（类型为`isa_t`），这个`isa`成员变量在`64位`CPU架构下是8字节，且排在`objc_class`结构体的前8字节。
+从源码得知，`Class`实际上是`objc_class`结构体的指针变量，而`objc_class`又继承自`objc_object`（说明类本质上也是一个对象），因此`Class`这个结构体指针变量的值内部有一个`isa`成员变量（类型为`isa_t`），这个`isa`成员变量在`64位`CPU架构下是8字节，且排在`objc_class`结构体的前8字节。
 
 ### 1.4 `isa`的作用
 
-通过对`isa`的位域说明，我们知道`shiftcls`存储的是类地址。在`x86_64`架构下，`shiftcls`占用44位，也就是第[3, 46]位。将 [3, 46]位 全部填充1，[0, 2]位 和 [47, 63]位 都补0，得到0x7ffffffffff8，也就是`ISA_MASK`的值。故，`isa & ISA_MASK`会得到`shiftcls`存储的类地址。这也就是所谓`MASK`的作用。
+从`objc_object`的结构可以说明，当系统为一个对象分配好内存，并初始化实例变量后，在这些对象的实例变量的结构体中的第一个就是`isa`。
+
+同时，通过对`isa`的位域说明，我们知道`shiftcls`存储的是类地址。在`x86_64`架构下，`shiftcls`占用44位，也就是第[3, 46]位。将 [3, 46]位 全部填充1，[0, 2]位 和 [47, 63]位 都补0，得到0x7ffffffffff8，也就是`ISA_MASK`的值。故，`isa & ISA_MASK`会得到`shiftcls`存储的类地址。这也就是所谓`MASK`的作用。
 
 如下图所示
 ![](https://user-gold-cdn.xitu.io/2020/1/26/16fe04a1ad504624?w=796&h=950&f=png&s=733485)
@@ -219,6 +222,10 @@ private:
 > 2. 证明【1】：通过`p/x Person.class`直接打印`Person`类地址，显然得到的是`0x0000000100001128`，如此【1】证明成立！
 
 **结论：`isa`将对象和类关联起来，起到了中间桥梁的作用。**
+
+```!
+注意：对 shiftcls 的分析是建立在 nonpointer 为 1 的情况下，如果 nonpointer 为0，整个 isa 存储的是 cls 。
+```
 
 > 思考：如果不用`ISA_MASK`，那么如何证明`isa`的这个作用呢？——答案将在文末补充。
 
@@ -254,11 +261,19 @@ isa = newisa;
 
 通过以上的源码分析，我们认识到对象的`isa指针`指向了对象所属的类。而类本身也有一个`isa`指针，它指向的又是什么呢？
 
+此时要引入`meta class`（即元类）的概念了。我们先了解一下元类的信息
+
+在`OC`中，对象的方法并没有存储于对象的结构体中（如果每一个对象都保存了自己能执行的方法，那么对内存的占用有极大的影响）。
+
+当对象的**实例方法**被调用时，它通过自己的`isa`来查找对应的类，然后在所属类的 `class_data_bits_t`结构体中查找对应方法的实现。同时，每一个`objc_class` 也有一个指向自己的父类的指针`superclass`用来查找继承的方法。
+
+而当调用 **类方法** 时，它的查找流程是怎样的呢？对此`OC`的解决方案就是引入元类，来保证**类方法也能通过相同的机制查找到**。也就是说，类的`isa`指向的是元类。
+
 苹果官方有个`isa`指向图，即
 
 ![](https://user-gold-cdn.xitu.io/2020/1/26/16fe0db0a22ebfba?w=1144&h=1170&f=png&s=240747)
 
-从图可知，类的`isa指针`指向的是类的元类。现在我们来验证一下吧。
+接下来我们来验证一下吧。
 
 ### 2.1 准备工作
 
@@ -450,3 +465,11 @@ A：具体思路是，`shiftcls`在`x86_64`架构下长度是44位，存储在`i
 Q：如果Person类继承的是NSProxy，相关isa指向是怎样的呢？
 
 A：跟`NSObject`一样，两者都是`根类`。
+
+## 参考资料
+
+[从 NSObject 的初始化了解 isa](https://github.com/draveness/analyze/blob/master/contents/objc/从%20NSObject%20的初始化了解%20isa.md)（by [Draveness](https://github.com/draveness)）
+
+## PS
+
+* 源码工程已放到`github`上，请戳 [objc4-756.2源码](https://github.com/ConstantCody/objc4-756.2Demo)
