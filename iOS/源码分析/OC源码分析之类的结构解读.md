@@ -1,10 +1,12 @@
+[此文在掘金上的地址](https://juejin.im/post/5e2c018a5188254dc42da951)
+
 ## 前言
 
 > 想要成为一名`iOS开发高手`，免不了阅读源码。以下是笔者在`OC源码探索`中梳理的一个小系列——**类与对象篇**，欢迎大家阅读指正，同时也希望对大家有所帮助。
 >
-> 1. [OC源码分析之对象的创建](https://juejin.im/post/5de08bf85188254fc26bc242)
-> 2. [OC源码分析之isa](https://juejin.im/post/5e0d4c686fb9a048401cff26)
-> 3. [OC源码分析之类的结构解读](https://juejin.im/post/5e2c018a5188254dc42da951)
+> 1. [OC源码分析之对象的创建](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之对象的创建.md)
+> 2. [OC源码分析之isa](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之isa.md)
+> 3. [OC源码分析之类的结构解读](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之类的结构解读.md)
 > 4. 未完待续...
 
 ## 1. 类的结构
