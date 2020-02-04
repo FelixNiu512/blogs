@@ -753,7 +753,7 @@ static void methodizeClass(Class cls)
 
 ### 2.6 `rw`和`ro`在运行时的不同之处
 
-目前为止的验证都是基于`Person`类的现有结构，也就是在编译期就确定的，突出不了`class_rw_t`和`class_ro_t`的差异性。接下来笔者会用`runtime`的`api`在运行时为`Person`动态添加一个属性`fly()`方法，再来一试。
+目前为止的验证都是基于`Person`类的现有结构，也就是在编译期就确定的，突出不了`class_rw_t`和`class_ro_t`的差异性。接下来笔者会用`runtime`的`api`在运行时为`Person`动态添加一个`fly()`方法，再来一试。
 
 1. 添加方法
 
