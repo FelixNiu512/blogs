@@ -7,7 +7,8 @@
 > 1. [OC源码分析之对象的创建](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之对象的创建.md)
 > 2. [OC源码分析之isa](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之isa.md)
 > 3. [OC源码分析之类的结构解读](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之类的结构解读.md)
-> 4. 未完待续...
+> 4. [OC源码分析之方法的缓存原理](https://github.com/ConstantCody/blogs/blob/master/iOS/源码分析/OC源码分析之方法的缓存原理.md)
+> 5. 未完待续...
 
 ## 1. 类的结构
 
