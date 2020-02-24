@@ -465,7 +465,7 @@ void cache_t::setBucketsAndMask(struct bucket_t *newBuckets, mask_t newMask)
 >
 > 而加入了`编译内存屏障`后，就算得到的是`新_buckets`和`旧_mask`，也不会导致程序崩溃。
 
-**可见，借助编译内存屏障的技巧在一定的程度上可以实现无锁读写技术。**
+`编译内存屏障`仅仅是确保`_buckets`的赋值会优先于`_mask`的赋值，也就是说，在任何场景下当指令`ldp	x10, x11, [x16, #CACHE]`执行后，得到的`_buckets`数组的长度一定是大于或等于`_mask+1`的，如此就保证了不会出现内存数组越界导致的程序崩溃。**可见，借助编译内存屏障的技巧在一定的程度上可以实现无锁读写技术。**
 
 > 对`内存屏障`感兴趣的同学可戳 [理解 Memory barrier（内存屏障）](https://blog.csdn.net/world_hello_100/article/details/50131497)
 
