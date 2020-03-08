@@ -32,12 +32,6 @@
 
 1. [理解iOS签名原理](https://juejin.im/post/5db1a7366fb9a02025668bcd)
 
-## 5. 面试题解
-
-### 5.1 iOS
-
-1. [iOS之高级面试题总纲](https://juejin.im/post/5e2eadce6fb9a02fec665197)
-2. [Runtime篇](https://juejin.im/post/5e2eebdc5188252cd447850e)
 
 
 
