@@ -28,14 +28,15 @@
 
 1. [理解iOS签名原理](https://juejin.im/post/5db1a7366fb9a02025668bcd)
 
-## 3 密码学
+## 3 计算机基础
 
-1. [密码学之RSA加密算法](https://juejin.im/post/5da19510f265da5b7a754840)
-1. [密码学之Hash与对称加密算法](https://juejin.im/post/5dad86796fb9a04e3559870e)
-
-## 4 数据结构与算法
+### 3.1 数据结构与算法
 
 1. [数据结构与算法之基础概念](https://juejin.im/post/5e9cf6f8f265da47c8013cd4)
 
+### 3.2 密码学
+
+1. [密码学之RSA加密算法](https://juejin.im/post/5da19510f265da5b7a754840)
+2. [密码学之Hash与对称加密算法](https://juejin.im/post/5dad86796fb9a04e3559870e)
 
 
