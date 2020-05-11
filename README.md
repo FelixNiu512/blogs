@@ -35,6 +35,7 @@
 ### 3.1 数据结构与算法
 
 1. [数据结构与算法之基础概念](https://juejin.im/post/5e9cf6f8f265da47c8013cd4)
+2. [数据结构与算法之链表的那些事儿](https://juejin.im/post/5ea0febbe51d4546ec1ccfad)
 
 ### 3.2 密码学
 
