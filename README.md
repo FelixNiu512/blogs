@@ -18,13 +18,15 @@
 5. [OC源码分析之方法的查找原理](https://juejin.im/post/5e49d39de51d4526fc749278)
 6. [OC源码分析之方法的解析与转发原理](https://juejin.im/post/5e8e95266fb9a03c7a331a68)
 
+<!--
 ### 2.2 开源框架源码分析
 
 1. SDWebImage
 2. AFNetworking
 3. YYModel
+-->
 
-### 2.3 iOS应用安全
+### 2.2 iOS应用安全
 
 1. [理解iOS签名原理](https://juejin.im/post/5db1a7366fb9a02025668bcd)
 
