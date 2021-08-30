@@ -9,9 +9,11 @@
 
 > 源码分析如下：  
 > 
-> * 关于`class_getInstanceSize`，实际上是获取类的成员变量占用的内存大小（指针大小的倍数，向上取整，其实就是内存对齐后的大小）；
-* 关于`malloc_size`，其获取的是类的实例对象所占用的内存大小，即类在`alloc`时系统分配的内存大小；
+> * 关于`class_getInstanceSize`函数，实际上是获取类的成员变量占用的内存大小（指针大小的倍数，向上取整，其实就是内存对齐后的大小）；
+* 关于`malloc_size`函数，其获取的是类的实例对象所占用的内存大小，即类在`alloc`时系统分配的内存大小；
 	* `alloc`底层调用的是`_class_createInstanceFromZone`函数，该函数通过`cls->instanceSize`获取类的size，而`instanceSize`对size做了额外处理：如果`size < 16`，令`size = 16`。也就是说，类在`alloc`时，系统会为其分配至少`16个字节`的内存。
+
+sizeof(类型)：不是函数，是个运算符，编译期编译时就计算好了。（可以类比`#define`）
 
 ### 002、一个OC对象在内存中是如何布局的？
 
@@ -34,4 +36,85 @@ struct Student_IMPL {
 * 内存的大端、小端模式  
 * x/4xg：读取内存/4 16进制 8字节
 * 内存对齐：结构体的最终内存大小，必须是最大成员大小的倍数
+
+### 003、alloc内存分配
+
+````c
+@interface Person : NSObject
+{
+    int _no;        // 4
+    int _age;       // 4
+    int _height;    // 4
+}// 8 + 12 = 20，实际是24（class_getInstanceSize([Person class])）
+
+@end
+
+@implementation Person
+
+@end
+
+int main(int argc, const char * argv[]) {
+    @autoreleasepool {
+        NSLog(@"%zd", class_getInstanceSize([Person class]));        // 24
+        NSLog(@"%zd", malloc_size((__bridge void *)[Person alloc])); // 32
+    }
+    return 0;
+}
+````	
+> 说明：
+> 
+> 1. `alloc`时，获取`size`（此时，通过结构体内存对齐计算得出，同时OC又做了最少16字节的调整）
+> 2. 向系统申请内存，此时再次进行`内存对齐`（与`1`中的对齐不一样，iOS系统做了限制，内存分配是16的倍数）：
+> 	* `buckets size`：{16, 32, 48, 64, 80, 96, 112, ... , 256}
+> 	* 有好几种`malloc`方式：如`malloc.c`、`nano_malloc.c`、`magazine_malloc.c`等等
+
+### 004、OC对象的分类
+
+* instance对象（实例对象）：通过类alloc出来的对象
+	* 只存储成员变量（`isa`、其他成员变量）
+	
+> 特点：`isa`是第一个成员变量，因此`isa`的地址也就是实例对象的地址。
+
+* class对象（类对象），其存储了：
+	* isa指针
+	* superClass指针
+	* 类的属性信息（@property）
+	* 类的对象方法信息（instance method） 
+	* 类的协议信息（protocol）
+	* 类的成员变量信息（ivar）：描述信息，即类型、名称，不是成员变量的值（值由实例对象决定）
+	* ...
+
+> * 一个类的类对象在内存中只有一份！
+
+可通过以下方法获取类对象
+
+````c
+NSObject *obj = [[NSObject alloc] init];
+Class c1 = [obj class];
+Class c2 = object_getClass(obj);
+Class c3 = [NSObject class];
+````
+
+* meta-class对象（元类对象），元类对象 和 类对象 的内存结构是一样的，但是用途不一样，在内存中存储的信息主要包括：
+	* isa指针
+	* superClass指针
+	* 类的类方法信息（class method）
+	* 有但不存储（null）：类的属性、对象方法信息、协议信息、成员变量信息
+	* ...
+	
+> * 每个类有且只有一个元类对象
+
+其相关操作方法：
+
+````c
+// 获取元类对象
+Class c1 = object_getClass([NSObject class]); // 传入类对象，可获得元类对象
+
+// 查看是否为meta-class对象
+BOOL result = class_isMetaClass([NSObject class]); // NO
+````
+
+### 005、isa
+
+
 
