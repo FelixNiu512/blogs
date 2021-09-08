@@ -4,7 +4,22 @@
 
 #### 01、讲一下OC的消息机制
 
+* OC中的方法调用其实就是转成`objc_msgSend`（`objc_msgSendSuper2`）函数的调用，给`receiver`发送了一条消息（selector方法名）；
+* `objc_msgSend`底层有3大阶段：见下方 >
+
 #### 02、什么是runtime？平时项目中有用过吗？
+
+* OC是一门动态性比较强的编程语言，允许很多操作推迟到程序运行时再进行；
+* OC的动态性都是由Runtime来支撑和实现的，Runtime是一套API（源码由C、C++和汇编编写），封装了很多动态性相关的函数；
+* 平时编写的OC代码，底层都是转换成Runtime API进行调用；
+
+runtime应用：
+
+* 利用关联对象（AssociatedObject）给分类添加属性；
+* 遍历所有的属性或者成员变量：（修改UITextField占位文字的颜色、字典转模型等）
+* 交换方法实现
+	* `class_replaceMethod`
+	* `method_exchangeImplementations`
 
 #### 03、打印结果是什么？
 
@@ -31,6 +46,15 @@
 @end
 ````
 
+结果是：
+
+````c
+Student
+Student
+Person
+Person
+````
+
 #### 04、打印结果是什么？
 
 ````c
@@ -46,6 +70,21 @@
 	NSLog(@"%d %d %d %d", res1, res2, res3, res4);
 }
 ````
+
+结果是：
+
+````c
+1 0 0 0
+````
+
+解析如下：
+
+* `isKindOf`找类簇，从「接收者」: 「接收者父类」 : ... : 「根类」
+	* 类方法匹配元类
+	* 实例方法匹配类
+* `isMemberOf`找「接收者」本类（元类）
+	* 类方法匹配元类
+	* 实例方法匹配类 
 
 #### 05、以下代码能否执行成功？如果可以，打印结果是什么？
 
@@ -80,6 +119,20 @@
 
 @end
 ````
+
+````c
+能执行成功！打印结果是：my name's ViewController <地址>
+````
+
+Q1：为什么能调用成功？
+
+* `[person print]`这样调用方法的底层实现，是通过`Person`类对象找`-print`方法的`IMP`（先通过`person`实例对象存储的地址的前8个字节（即`isa`），进行 `& ISA_MASK`运算后，得到`Person`类对象的地址，再去查找`-print`方法，找到即调用；
+* 题目中`[(__bridge id)obj print];`这样调用，也会拿到`obj`存储的地址的前8个字节（即`Person`类对象），进行`& ISA_MASK`运算后，得到的还是`Person`类对象的地址（没有变化），再找到`-print`方法，继而调用；
+
+Q2：为什么打印了ViewController等对象内容？
+
+* 栈空间内存如下：
+![img_runtime_print](../images/img_runtime_print.jpg)
 
 ### 知识点
 
@@ -238,3 +291,12 @@ OC的方法调用，其实就是转换为`objc_msgSend`函数的调用，该函�
 
 ![img_msg_forwarding](../images/img_msg_forwarding.jpg)
 
+#### 8、super的本质
+
+* `super`的调用，底层会转换为`objc_msgSendSuper2`函数的调用，接收两个参数：
+	* `struct objc_super2`结构体，其内有两个成员：
+		* `id receiver`;
+		* `Class current_class`;
+	* `SEL`
+* receiver是消息接收者；
+* `current_class`是receiver的Class对象
