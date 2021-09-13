@@ -16,10 +16,10 @@
 runtime应用：
 
 * 利用关联对象（AssociatedObject）给分类添加属性；
-* 遍历所有的属性或者成员变量：（修改UITextField占位文字的颜色、字典转模型等）
-* 交换方法实现
+* 通过「交换方法实现」可以进行业务的绑定：比如防crash日志采集
 	* `class_replaceMethod`
 	* `method_exchangeImplementations`
+* 遍历所有的属性或者成员变量：（修改UITextField占位文字的颜色、字典转模型等）
 
 #### 03、打印结果是什么？
 
