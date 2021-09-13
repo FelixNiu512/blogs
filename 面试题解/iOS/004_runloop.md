@@ -22,7 +22,7 @@
 
 * 线程与runloop是一一对应关系，每条线程都有唯一的一个与之对应的RunLoop对象；
 	* RunLoop保存在一个全局的Dictionary里，线程作为key，RunLoop作为value；
-* 线程刚创建时并没有RunLoop对象，RunLoop会在第一次获取它时创建，RunLoop会在线程结束时销毁；
+* 线程刚创建时并没有RunLoop对象，RunLoop会在第一次获取它时创建（是创建，并没有启用，启用需要调用专门的启用函数），RunLoop会在线程结束时销毁；
 	* 主线程的RunLoop已经自动获取（创建），子线程默认没有开启RunLoop
 
 **如何获取runloop对象？**
