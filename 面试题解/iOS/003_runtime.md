@@ -134,6 +134,10 @@ Q2：为什么打印了ViewController等对象内容？
 * 栈空间内存如下：
 ![img_runtime_print](../images/img_runtime_print.jpg)
 
+* `self.name`实际上获取的是`self->_name`的地址，也就是`isa`的地址+8字节，
+
+> super的本质分析见下文
+
 ### 知识点
 
 #### 1、runtime
